@@ -1,0 +1,4 @@
+delete [String path] -> Enter the path from your current directory to delete
+cd     [String path] -> Enter the path of your new root directory
+esc    [null]        -> exit programesc
+
