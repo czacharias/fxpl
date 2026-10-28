@@ -1,76 +1,52 @@
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.awt.Desktop;
-import java.net.URI;
 
-public class fileExplorer {
+public class FileExplorer {
 
-    String rootDir;
+    String rootDir, path;
     Scanner input = new Scanner(System.in);
 
-    public fileExplorer(String rootDir){
+    public FileExplorer(String rootDir){
         this.rootDir = rootDir;
     }
 
-    public void startExplore() throws IOException, URISyntaxException {
-        System.out.println("""
-                                                           \u001B[47m\u001B[31m
-                                                           \s
-           ▄████████ ▀████    ▐████▀    ▄███████▄  ▄█      \s
-          ███    ███   ███▌   ████▀    ███    ███ ███      \s
-          ███    █▀     ███  ▐███      ███    ███ ███      \s
-         ▄███▄▄▄        ▀███▄███▀      ███    ███ ███      \s
-        ▀▀███▀▀▀        ████▀██▄     ▀█████████▀  ███      \s
-          ███          ▐███  ▀███      ███        ███      \s
-          ███         ▄███     ███▄    ███        ███▌    ▄\s
-          ███        ████       ███▄  ▄████▀      █████▄▄██\s
-                                                  ▀        \u001B[32m \u001B[0m
-                                                 \s
-        Enter "help" for methods
-       \s""");
-        while(true){
-            String action, path;
-            action = input.next().toLowerCase();
-            switch(action){
-                case "read":
-                    path = input.next();
-                    readFile(path);
-                    break;
-                case "readf":
-                    path = input.next();
-                    readFolder(path);
-                    break;
-                case "make":
-                    path = input.next();
-                    makeFile(path);
-                    break;
-                case "makef":
-                    path = input.next();
-                    makeFolder(path);
-                    break;
-                case "write":
-                    path = input.next();
-                    writeFile(path);
-                    break;
-                case "delete":
-                    path = input.next();
-                    deleteFile(path);
-                    break;
-                case "cd":
-                    path = input.next();
-                    setRootDir(path);
-                    break;
-                case "esc":
-                    return;
-                case "skibidi":
-                    Desktop.getDesktop().browse(new URI("https://github.com/sstoichev22/ChessGame/commit/f180b8aec73ab8a5d45cf5c2a7d5dd0cbc585898"));
-                    break;
-                case "help":
-                    System.out.printf("""
+    public void processCommand(String command) {
+        if (command.isEmpty()) return;
+
+        Main.appendOutput("\n");
+        switch(command.substring(2)){
+            case "read":
+                readFile(path);
+                break;
+            case "readf":
+                readFolder(path);
+                break;
+            case "make":
+                makeFile(path);
+                break;
+            case "makef":
+                makeFolder(path);
+                break;
+            case "write":
+                writeFile(path);
+                break;
+            case "delete":
+                deleteFile(path);
+                break;
+            case "cd":
+                setRootDir(path);
+                break;
+            case "esc":
+                return;
+            case "help":
+               Main.appendOutput("""
                             your current directory is %s
                             methods:
                             name  | arguments    |  description
@@ -82,10 +58,11 @@ public class fileExplorer {
                             delete [String path] -> Enter the path from your current directory to delete
                             cd     [String path] -> Enter the path of your new root directory
                             esc    [null]        -> exit program
-                            """, rootDir, rootDir, rootDir, rootDir, rootDir, rootDir);
-                    break;
-            }
+                            """);
+                break;
         }
+
+        Main.appendOutput("> ");
     }
 
     public void setRootDir(String rootDir){
@@ -93,7 +70,7 @@ public class fileExplorer {
             this.rootDir = rootDir;
         }
         else{
-            System.out.println(rootDir + " Does not exist\nDo you want to create this as a new directory? (Y/N)");
+            Main.appendOutput(rootDir + " Does not exist\nDo you want to create this as a new directory? (Y/N)");
             if(input.next().equalsIgnoreCase("y")) {
                 File f = new File(rootDir);
                 f.mkdirs();
@@ -102,7 +79,7 @@ public class fileExplorer {
         }
     }
 
-    public void makeFile(String path) throws IOException {
+    public void makeFile(String path) {
         String[] pathSplit = path.split("/");
         if (validFilename(pathSplit[pathSplit.length -1])){
             try {
@@ -125,7 +102,7 @@ public class fileExplorer {
         f.mkdirs();
     }
 
-    public void writeFile(String path) throws IOException {
+    public void writeFile(String path) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(rootDir + path))) {
             System.out.println("Enter file contents (type ESC to exit)");
 
@@ -143,7 +120,7 @@ public class fileExplorer {
         }
     }
 
-    public void readFile(String path) throws IOException, FileNotFoundException{
+    public void readFile(String path){
         try (BufferedReader br = new BufferedReader(new FileReader(rootDir + path))) {
             String line;
             while ((line = br.readLine()) != null) {
